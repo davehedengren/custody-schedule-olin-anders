@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Olin & Anders — Custody Proposal 2026-27</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<style>
+  :root {
+    --nc: #4caf50;
+    --ut: #2196f3;
+    --visit: #9c27b0;
+    --travel: #ff9800;
+    --bg: #fafafa;
+    --ink: #222;
+    --muted: #666;
+    --holiday-dot: #e53935;
+    --workday-dot: #ff9800;
+    --vacation-dot: #9c27b0;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+  }
+  .topbar {
+    background: white;
+    border-bottom: 1px solid #e0e0e0;
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .topbar h1 { font-size: 18px; margin: 0; }
+  .topbar .draft-name {
+    font-size: 12px;
+    color: var(--muted);
+    padding: 3px 8px;
+    background: #f0f0f0;
+    border-radius: 12px;
+  }
+  .topbar .draft-name.dirty { color: #b85c00; background: #fff3e0; }
+  .spacer { flex: 1; }
+  .btn {
+    padding: 6px 12px;
+    border: 1px solid #ccc;
+    background: white;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--ink);
+  }
+  .btn:hover { background: #f5f5f5; }
+  .btn.primary { background: var(--nc); color: white; border-color: var(--nc); }
+  .btn.primary:hover { background: #43a047; }
+  .btn.danger { color: #c62828; }
+  select { padding: 6px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; background: white; }
+
+  .container { padding: 20px 24px; }
+
+  .palette {
+    display: flex;
+    gap: 8px;
+    background: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .palette .label { font-size: 12px; color: var(--muted); margin-right: 4px; }
+  .tool {
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    border: 2px solid transparent;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    user-select: none;
+  }
+  .tool .swatch {
+    width: 14px; height: 14px; border-radius: 3px; display: inline-block; border: 1px solid rgba(0,0,0,0.1);
+  }
+  .tool.active { border-color: var(--ink); background: #f0f0f0; }
+  .swatch.nc { background: var(--nc); }
+  .swatch.ut { background: var(--ut); }
+  .swatch.visit { background: repeating-linear-gradient(45deg, var(--nc), var(--nc) 4px, var(--visit) 4px, var(--visit) 8px); }
+  .swatch.travel { background: var(--travel); }
+  .swatch.erase { background: white; border: 1px dashed #999; }
+
+  .palette .help {
+    font-size: 12px; color: var(--muted); margin-left: 8px;
+  }
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .stat-card {
+    background: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+  }
+  .stat-card .label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-card .value { font-size: 20px; font-weight: 600; margin-top: 4px; }
+  .stat-card .pct { font-size: 12px; color: var(--muted); margin-left: 5px; }
+
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 14px;
+    background: white; padding: 10px 14px;
+    border: 1px solid #e0e0e0; border-radius: 8px;
+    margin-bottom: 16px; font-size: 12px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .dot {
+    width: 9px; height: 9px; border-radius: 50%; display: inline-block;
+    background: #c62828; border: 1.5px solid white;
+    box-sizing: border-box;
+  }
+  .dot.h, .dot.w, .dot.v { background: #c62828; }
+
+  .calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 14px;
+  }
+  .month {
+    background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px;
+  }
+  .month h3 { margin: 0 0 8px; font-size: 14px; }
+  .dow-header, .week {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px;
+  }
+  .dow-header div {
+    text-align: center; font-size: 10px; color: var(--muted); font-weight: 600; padding: 3px 0;
+  }
+  .day {
+    aspect-ratio: 1 / 1;
+    border-radius: 4px;
+    font-size: 11px;
+    padding: 3px 4px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: white;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.15);
+    position: relative;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform 0.05s;
+  }
+  .day.empty { background: transparent; cursor: default; }
+  .day.nc { background: var(--nc); }
+  .day.ut { background: var(--ut); }
+  .day.visit {
+    background: repeating-linear-gradient(45deg, var(--nc), var(--nc) 6px, var(--visit) 6px, var(--visit) 12px);
+  }
+  .day.travel { background: var(--travel); }
+  .day.changed { box-shadow: 0 0 0 2px #ffd54f; }
+  .day.out-of-range { opacity: 0.25; cursor: not-allowed; pointer-events: none; }
+  .day:hover:not(.empty) { transform: scale(1.05); z-index: 1; border-color: rgba(0,0,0,0.3); }
+  .day:hover:not(.empty)::after {
+    content: attr(data-tip);
+    position: absolute; bottom: 100%; left: 50%;
+    transform: translateX(-50%);
+    background: #222; color: white; text-shadow: none;
+    padding: 6px 8px; border-radius: 4px; font-size: 11px;
+    white-space: nowrap; z-index: 10; pointer-events: none; margin-bottom: 4px;
+  }
+  .day .num { font-weight: 600; }
+  .day .markers {
+    display: flex; gap: 2px; align-items: center; justify-content: flex-end;
+  }
+  .day .marker-text {
+    font-size: 9px; background: rgba(255,255,255,0.85); color: #333; text-shadow: none;
+    padding: 0 3px; border-radius: 3px; font-weight: 600;
+  }
+
+  .trips-panel {
+    background: white; border: 1px solid #e0e0e0; border-radius: 8px;
+    padding: 14px; margin-bottom: 16px;
+  }
+  .trips-panel h2 { margin: 0 0 10px; font-size: 15px; }
+  .trip-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+  .trip { padding: 8px 12px; border-left: 4px solid; background: #fafafa; border-radius: 4px; font-size: 13px; }
+  .trip.ut { border-color: var(--ut); }
+  .trip.visit { border-color: var(--visit); }
+  .trip strong { display: block; }
+  .trip .when { color: var(--muted); font-size: 12px; }
+
+  .toast {
+    position: fixed; bottom: 20px; right: 20px;
+    background: #333; color: white; padding: 10px 16px;
+    border-radius: 6px; font-size: 13px; opacity: 0;
+    transition: opacity 0.2s; pointer-events: none; z-index: 100;
+  }
+  .toast.show { opacity: 1; }
+
+  /* tabs */
+  .tabs-bar {
+    display: flex; gap: 4px; border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 16px; padding-bottom: 0;
+  }
+  .tab-btn {
+    padding: 10px 18px; border: none; background: transparent; cursor: pointer;
+    font-size: 14px; color: var(--muted); border-bottom: 3px solid transparent;
+    margin-bottom: -1px;
+  }
+  .tab-btn:hover { color: var(--ink); }
+  .tab-btn.active { color: var(--ink); border-bottom-color: var(--ut); font-weight: 600; }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* flights view */
+  .flights-summary {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px; margin-bottom: 16px;
+  }
+  .flights-filter {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 12px; align-items: center;
+  }
+  .filter-pill {
+    padding: 5px 12px; border-radius: 14px; cursor: pointer;
+    font-size: 12px; border: 1px solid #ccc; background: white;
+    user-select: none;
+  }
+  .filter-pill.active { background: var(--ink); color: white; border-color: var(--ink); }
+  .flight-row {
+    background: white; border: 1px solid #e0e0e0; border-radius: 8px;
+    padding: 12px 16px; margin-bottom: 8px; display: grid;
+    grid-template-columns: auto auto 1fr auto auto; gap: 14px; align-items: center;
+  }
+  .flight-row.who-boys { border-left: 4px solid var(--nc); }
+  .flight-row.who-dave { border-left: 4px solid var(--ut); }
+  .flight-row .date { font-weight: 600; font-size: 14px; min-width: 95px; }
+  .flight-row .date .dow { color: var(--muted); font-weight: 400; font-size: 11px; display: block; }
+  .flight-row .who { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; min-width: 60px; }
+  .flight-row .direction { font-weight: 600; }
+  .flight-row .context { color: var(--muted); font-size: 12px; }
+  .flight-row .status {
+    padding: 3px 9px; border-radius: 10px; font-size: 11px; font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .status.proposed { background: #fff3e0; color: #b85c00; }
+  .status.booked { background: #e3f2fd; color: #1565c0; }
+  .status.completed { background: #e8f5e9; color: #2e7d32; }
+  .flight-row .booking-info { font-size: 12px; color: #555; }
+  .flight-row .edit-btn { padding: 4px 10px; font-size: 12px; }
+  .flight-edit {
+    grid-column: 1 / -1;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 8px; padding-top: 12px; border-top: 1px dashed #e0e0e0; margin-top: 8px;
+  }
+  .flight-edit label { font-size: 11px; color: var(--muted); display: flex; flex-direction: column; gap: 3px; }
+  .flight-edit input, .flight-edit select, .flight-edit textarea {
+    padding: 5px 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 13px; font-family: inherit;
+  }
+  .flight-edit textarea { min-height: 36px; resize: vertical; }
+  .flight-edit .save-row { grid-column: 1 / -1; display: flex; gap: 8px; justify-content: flex-end; }
+  @media (max-width: 700px) {
+    .flight-row { grid-template-columns: 1fr; gap: 6px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>Olin &amp; Anders — Proposal 2026-27</h1>
+  <span class="draft-name" id="draft-status">Baseline proposal</span>
+  <div class="spacer"></div>
+  <select id="draft-picker"><option value="">Load draft…</option></select>
+  <button class="btn" id="save-btn">Save Draft</button>
+  <button class="btn" id="rename-btn" title="Rename current draft">Rename</button>
+  <button class="btn" id="export-btn">Export JSON</button>
+  <button class="btn" id="import-btn">Import JSON</button>
+  <input type="file" id="import-file" accept="application/json" style="display:none" />
+  <button class="btn danger" id="reset-btn">Reset</button>
+</div>
+
+<div class="container">
+
+  <div class="tabs-bar">
+    <button class="tab-btn active" data-tab="calendar">📅 Calendar</button>
+    <button class="tab-btn" data-tab="flights">✈️ Flights</button>
+  </div>
+
+  <div id="tab-calendar" class="tab-pane active">
+
+  <div class="palette">
+    <span class="label">Paint with:</span>
+    <div class="tool" data-tool="nc"><span class="swatch nc"></span>NC (Mom)</div>
+    <div class="tool" data-tool="ut"><span class="swatch ut"></span>UT (Dad)</div>
+    <div class="tool" data-tool="visit"><span class="swatch visit"></span>Dad in NC</div>
+    <div class="tool" data-tool="travel"><span class="swatch travel"></span>Travel</div>
+    <div class="tool" data-tool="erase"><span class="swatch erase"></span>Reset day</div>
+    <span class="help">Click a day to apply the selected color. Shift-click to apply to a range.</span>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="legend">
+    <div class="legend-item"><span class="dot"></span> School out (holiday, workday, or vacation — hover for details)</div>
+    <div class="legend-item">★ First / last day of school</div>
+    <div class="legend-item">Q End of quarter</div>
+  </div>
+
+  <div class="trips-panel">
+    <h2>Trip plan (auto-summarized from current draft)</h2>
+    <div class="trip-list" id="trip-list"></div>
+  </div>
+
+  <div class="calendar-grid" id="calendar"></div>
+
+  </div><!-- /tab-calendar -->
+
+  <div id="tab-flights" class="tab-pane">
+    <div class="flights-summary" id="flights-summary"></div>
+    <div class="flights-filter" id="flights-filter">
+      <span class="label" style="font-size:12px;color:var(--muted);">Filter:</span>
+      <span class="filter-pill active" data-filter="all">All</span>
+      <span class="filter-pill" data-filter="boys">Boys only</span>
+      <span class="filter-pill" data-filter="dave">Dave only</span>
+      <span class="filter-pill" data-filter="proposed">Proposed</span>
+      <span class="filter-pill" data-filter="booked">Booked</span>
+      <span class="filter-pill" data-filter="completed">Completed</span>
+    </div>
+    <div id="flights-list"></div>
+  </div><!-- /tab-flights -->
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============ school events ============
+const events = {
+  "2026-08-17":{t:"w",l:"Teacher workday"},"2026-08-18":{t:"w",l:"Teacher workday"},
+  "2026-08-19":{t:"w",l:"Teacher workday"},"2026-08-20":{t:"w",l:"Teacher workday"},
+  "2026-08-21":{t:"w",l:"Teacher workday"},"2026-08-24":{t:"first",l:"First day of school"},
+  "2026-09-07":{t:"h",l:"Labor Day"},"2026-09-21":{t:"w",l:"Teacher workday"},
+  "2026-10-12":{t:"w",l:"Teacher workday"},"2026-10-30":{t:"q",l:"End of Q1"},
+  "2026-11-03":{t:"w",l:"Teacher workday (Election Day)"},"2026-11-11":{t:"h",l:"Veterans Day"},
+  "2026-11-25":{t:"v",l:"Vacation day"},"2026-11-26":{t:"h",l:"Thanksgiving"},
+  "2026-11-27":{t:"h",l:"Day after Thanksgiving"},"2026-12-21":{t:"w",l:"Teacher workday"},
+  "2026-12-22":{t:"w",l:"Teacher workday"},"2026-12-23":{t:"v",l:"Vacation day"},
+  "2026-12-24":{t:"h",l:"Christmas Eve"},"2026-12-25":{t:"h",l:"Christmas Day"},
+  "2026-12-28":{t:"h",l:"Holiday"},"2026-12-29":{t:"v",l:"Vacation day"},
+  "2026-12-30":{t:"v",l:"Vacation day"},"2026-12-31":{t:"v",l:"Vacation day"},
+  "2027-01-01":{t:"h",l:"New Year's Day"},"2027-01-15":{t:"q",l:"End of Q2"},
+  "2027-01-18":{t:"h",l:"MLK Day"},"2027-01-19":{t:"w",l:"Teacher workday"},
+  "2027-02-15":{t:"w",l:"Teacher workday"},"2027-03-10":{t:"w",l:"Teacher workday"},
+  "2027-03-25":{t:"q",l:"End of Q3"},"2027-03-26":{t:"h",l:"Holiday (Good Friday)"},
+  "2027-03-29":{t:"v",l:"Spring break"},"2027-03-30":{t:"v",l:"Spring break"},
+  "2027-03-31":{t:"v",l:"Spring break"},"2027-04-01":{t:"v",l:"Spring break"},
+  "2027-04-02":{t:"v",l:"Spring break"},"2027-04-05":{t:"w",l:"Teacher workday"},
+  "2027-05-17":{t:"w",l:"Teacher workday"},"2027-05-31":{t:"h",l:"Memorial Day"},
+  "2027-06-08":{t:"last",l:"Last day of school"},"2027-06-09":{t:"w",l:"Teacher workday / End of Q4"},
+  "2027-06-10":{t:"w",l:"Teacher workday"},"2027-06-11":{t:"w",l:"Teacher workday"},
+};
+
+// ============ baseline proposal ============
+function buildBaseline() {
+  const out = {};
+  function fr(s,e,loc,note) {
+    const sd = new Date(s+"T00:00:00"), ed = new Date(e+"T00:00:00");
+    for (let d=new Date(sd); d<=ed; d.setDate(d.getDate()+1)) {
+      out[d.toISOString().slice(0,10)] = {loc, note};
+    }
+  }
+  // 365-day window: Aug 23, 2026 (return from prior summer in UT) → Aug 22, 2027
+  out["2026-08-23"]={loc:"travel",note:"Fly UT→NC (school starts Mon)"};
+  fr("2026-08-24","2026-09-08","nc","School");
+
+  // Dad visit #1: Wed Sep 9 → Tue Sep 15 (7 days)
+  fr("2026-09-09","2026-09-15","visit","Dad visiting NC (7 days)");
+  fr("2026-09-16","2026-10-08","nc","School");
+
+  // Boys to UT — Fall break weekend (Fri evening departure)
+  out["2026-10-09"]={loc:"travel",note:"Fly NC→UT Fri evening (fall break)"};
+  fr("2026-10-10","2026-10-11","ut","Long weekend in UT");
+  out["2026-10-12"]={loc:"travel",note:"Fly UT→NC Mon evening (workday)"};
+  fr("2026-10-13","2026-11-10","nc","School");
+
+  // Dad visit #2: Wed Nov 11 → Tue Nov 17 (Veterans Day at start = bonus day)
+  fr("2026-11-11","2026-11-17","visit","Dad visiting NC (7 days)");
+  fr("2026-11-18","2026-11-24","nc","School");
+
+  // Thanksgiving 2026 in NC with Mom
+  fr("2026-11-25","2026-11-29","nc","Thanksgiving in NC (with Mom)");
+  fr("2026-11-30","2026-12-18","nc","School");
+
+  // Winter break in UT
+  out["2026-12-19"]={loc:"travel",note:"Fly NC→UT (winter break)"};
+  fr("2026-12-20","2027-01-02","ut","Winter break in UT");
+  out["2027-01-03"]={loc:"travel",note:"Fly UT→NC"};
+  fr("2027-01-04","2027-01-15","nc","School");
+
+  // Boys to UT — MLK long weekend (Fri evening → Tue evening: 4 nights)
+  out["2027-01-15"]={loc:"travel",note:"Fly NC→UT Fri evening (MLK weekend)"};
+  fr("2027-01-16","2027-01-18","ut","Long weekend in UT");
+  out["2027-01-19"]={loc:"travel",note:"Fly UT→NC Tue evening (workday)"};
+  fr("2027-01-20","2027-02-04","nc","School");
+
+  // Dad visit #3: Fri Feb 5 → Thu Feb 11 (7 days)
+  fr("2027-02-05","2027-02-11","visit","Dad visiting NC (7 days)");
+  fr("2027-02-12","2027-03-09","nc","School");
+
+  // Dad visit #4: Wed Mar 10 → Tue Mar 16 (7 days; Mar 10 is a workday)
+  fr("2027-03-10","2027-03-16","visit","Dad visiting NC (7 days)");
+  fr("2027-03-17","2027-03-25","nc","School (end of Q3)");
+
+  // Spring break in UT
+  out["2027-03-26"]={loc:"travel",note:"Fly NC→UT (spring break)"};
+  fr("2027-03-27","2027-04-04","ut","Spring break in UT");
+  out["2027-04-05"]={loc:"travel",note:"Fly UT→NC"};
+  fr("2027-04-06","2027-05-04","nc","School");
+
+  // Dad visit #5: Wed May 5 → Tue May 11 (7 days)
+  fr("2027-05-05","2027-05-11","visit","Dad visiting NC (7 days)");
+  fr("2027-05-12","2027-05-27","nc","School");
+
+  // Memorial Day weekend in UT (Fri evening → Mon evening: 3 nights)
+  out["2027-05-28"]={loc:"travel",note:"Fly NC→UT Fri evening (Memorial Day)"};
+  fr("2027-05-29","2027-05-30","ut","Long weekend in UT");
+  out["2027-05-31"]={loc:"travel",note:"Fly UT→NC Mon evening (Memorial Day)"};
+  fr("2027-06-01","2027-06-08","nc","School (last day Jun 8)");
+
+  // Summer in UT — boys stay through August (school starts Mon Aug 23, 2027)
+  out["2027-06-09"]={loc:"travel",note:"Fly NC→UT (summer)"};
+  fr("2027-06-10","2027-08-20","ut","Summer with Dad");
+  out["2027-08-21"]={loc:"travel",note:"Fly UT→NC Sat (2 days before school)"};
+  out["2027-08-22"]={loc:"nc",note:"NC — day before first day of school"};
+  return out;
+}
+
+const BASELINE = buildBaseline();
+
+// ============ state ============
+const state = {
+  assignments: structuredClone(BASELINE),
+  draftKey: null,
+  draftName: "Baseline proposal",
+  dirty: false,
+  tool: "nc",
+  lastClickedDate: null,
+};
+
+// ============ rendering ============
+const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+const DOW = ["S","M","T","W","T","F","S"];
+const MONTHS_SHOWN = [
+  [2026,7],[2026,8],[2026,9],[2026,10],[2026,11],
+  [2027,0],[2027,1],[2027,2],[2027,3],[2027,4],[2027,5],[2027,6],[2027,7]
+];
+function pad(n){return n<10?"0"+n:n;}
+function iso(y,m,d){return `${y}-${pad(m+1)}-${pad(d)}`;}
+
+function renderCalendar() {
+  const cal = document.getElementById("calendar");
+  cal.innerHTML = "";
+  MONTHS_SHOWN.forEach(([y,m]) => cal.appendChild(renderMonth(y,m)));
+}
+
+function renderMonth(year, month) {
+  const wrap = document.createElement("div");
+  wrap.className = "month";
+  wrap.innerHTML = `<h3>${MONTHS[month]} ${year}</h3>`;
+
+  const dowH = document.createElement("div");
+  dowH.className = "dow-header";
+  DOW.forEach(d => { const c=document.createElement("div"); c.textContent=d; dowH.appendChild(c); });
+  wrap.appendChild(dowH);
+
+  const grid = document.createElement("div");
+  grid.className = "week";
+  const startDow = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  for (let i=0;i<startDow;i++) {
+    const e=document.createElement("div"); e.className="day empty"; grid.appendChild(e);
+  }
+  for (let d=1; d<=daysInMonth; d++) {
+    const id = iso(year, month, d);
+    grid.appendChild(renderDay(id, d));
+  }
+  wrap.appendChild(grid);
+  return wrap;
+}
+
+// out-of-range default: prior summer (Aug 1-22, 2026) was Dad's; post-range is next school year with Mom
+function outOfRangeDefault(id) {
+  if (id < "2026-08-23") return {loc: "ut", note: "Dad's days from prior year (out of range)"};
+  return {loc: "nc", note: "Next school year (out of range)"};
+}
+
+function renderDay(id, dayNum) {
+  const cell = document.createElement("div");
+  cell.className = "day";
+  cell.dataset.date = id;
+  const sched = state.assignments[id] || outOfRangeDefault(id);
+  const ev = events[id];
+  cell.classList.add(sched.loc);
+  const baseLoc = BASELINE[id]?.loc;
+  if (baseLoc && baseLoc !== sched.loc) cell.classList.add("changed");
+  if (!baseLoc) cell.classList.add("out-of-range");
+
+  const tipParts = [id];
+  if (sched.note) tipParts.push(sched.note);
+  else tipParts.push(({nc:"NC (Mom)",ut:"UT (Dad)",visit:"NC + Dad visiting",travel:"Travel"})[sched.loc] || sched.loc);
+  if (ev) tipParts.push(ev.l);
+  cell.dataset.tip = tipParts.join(" — ");
+
+  const num = document.createElement("div");
+  num.className = "num"; num.textContent = dayNum;
+  cell.appendChild(num);
+
+  const markers = document.createElement("div");
+  markers.className = "markers";
+  if (ev) {
+    if (ev.t==="first"||ev.t==="last") {
+      const s=document.createElement("span"); s.className="marker-text"; s.textContent="★"; markers.appendChild(s);
+    } else if (ev.t==="q") {
+      const s=document.createElement("span"); s.className="marker-text"; s.textContent="Q"; markers.appendChild(s);
+    } else {
+      const dot=document.createElement("span"); dot.className="dot "+ev.t; markers.appendChild(dot);
+    }
+  }
+  cell.appendChild(markers);
+
+  cell.addEventListener("click", e => onDayClick(id, e));
+  return cell;
+}
+
+function applyTool(date, tool) {
+  if (tool === "erase") {
+    state.assignments[date] = structuredClone(BASELINE[date] || {loc:"nc",note:""});
+  } else {
+    const note = ({nc:"Edited: NC",ut:"Edited: UT",visit:"Edited: Dad in NC",travel:"Edited: Travel"})[tool];
+    state.assignments[date] = {loc:tool, note};
+  }
+}
+
+function onDayClick(date, e) {
+  if (e.shiftKey && state.lastClickedDate) {
+    const a = state.lastClickedDate, b = date;
+    const [s,end] = a < b ? [a,b] : [b,a];
+    let d = new Date(s+"T00:00:00");
+    const ed = new Date(end+"T00:00:00");
+    while (d <= ed) {
+      applyTool(d.toISOString().slice(0,10), state.tool);
+      d.setDate(d.getDate()+1);
+    }
+  } else {
+    applyTool(date, state.tool);
+  }
+  state.lastClickedDate = date;
+  state.dirty = true;
+  refreshAll();
+}
+
+// ============ stats ============
+// Travel attribution: a travel day counts toward whichever home the boys
+// sleep in that night, inferred from the note ("→UT" = UT night, "→NC" = NC night).
+function travelDestination(note) {
+  if (!note) return null;
+  if (/→\s*UT|->\s*UT/.test(note)) return "ut";
+  if (/→\s*NC|->\s*NC/.test(note)) return "nc";
+  return null;
+}
+function refreshStats() {
+  const counts = {nc:0, ut:0, visit:0, travel:0};
+  let nightsMom = 0, nightsDad = 0;
+  for (const [date, v] of Object.entries(state.assignments)) {
+    counts[v.loc] = (counts[v.loc]||0)+1;
+    if (v.loc === "nc") { nightsMom++; }
+    else if (v.loc === "visit") { nightsDad++; }   // Dad in NC = boys with Dad
+    else if (v.loc === "ut") { nightsDad++; }
+    else if (v.loc === "travel") {
+      const dest = travelDestination(v.note);
+      if (dest === "ut") { nightsDad++; }
+      else if (dest === "nc") { nightsMom++; }
+    }
+  }
+  const total = nightsMom + nightsDad;
+  const card = (label, value, sub) =>
+    `<div class="stat-card"><div class="label">${label}</div><div class="value">${value}<span class="pct">${sub||""}</span></div></div>`;
+  document.getElementById("stats").innerHTML =
+    card("Total nights tracked", total, "Aug 23 2026 → Aug 22 2027 · 365 days") +
+    card("Nights with Mom", nightsMom, `${Math.round(nightsMom/total*100)}%`) +
+    card("Nights with Dad", nightsDad, `${Math.round(nightsDad/total*100)}% — UT + NC visits`) +
+    card("Of Dad's nights — in UT", counts.ut, "boys travel to Dad") +
+    card("Of Dad's nights — in NC", counts.visit, "5 visits × 7 days") +
+    card("Travel days", counts.travel, "attributed by overnight");
+}
+
+// ============ trip plan summary ============
+function refreshTripList() {
+  const dates = Object.keys(state.assignments).sort();
+  const blocks = [];
+  let cur = null;
+  for (const d of dates) {
+    const loc = state.assignments[d].loc;
+    if (!cur || cur.loc !== loc) {
+      if (cur) blocks.push(cur);
+      cur = {loc, start:d, end:d};
+    } else {
+      cur.end = d;
+    }
+  }
+  if (cur) blocks.push(cur);
+
+  const fmt = d => {
+    const dt = new Date(d+"T00:00:00");
+    return dt.toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric",year:"numeric"});
+  };
+  const days = (s,e) => {
+    const a = new Date(s+"T00:00:00"), b = new Date(e+"T00:00:00");
+    return Math.round((b-a)/(1000*60*60*24)) + 1;
+  };
+
+  // Show only UT and visit blocks (the noteworthy travel events)
+  const trips = blocks.filter(b => b.loc === "ut" || b.loc === "visit");
+  const html = trips.map(b => {
+    const cls = b.loc;
+    const label = b.loc === "ut" ? "Boys in UT" : "Dad visiting NC";
+    return `<div class="trip ${cls}"><strong>${label}</strong><span class="when">${fmt(b.start)} → ${fmt(b.end)} · ${days(b.start,b.end)} days</span></div>`;
+  }).join("");
+  document.getElementById("trip-list").innerHTML = html || `<div style="color:var(--muted);font-size:13px">No UT or NC-visit blocks in current draft.</div>`;
+}
+
+// ============ persistence (localStorage + optional server) ============
+const LS_PREFIX = "custody_draft_";
+function listLocalDrafts() {
+  const keys = [];
+  for (let i=0;i<localStorage.length;i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith(LS_PREFIX)) keys.push(k);
+  }
+  return keys;
+}
+function refreshDraftPicker() {
+  const sel = document.getElementById("draft-picker");
+  sel.innerHTML = `<option value="">Load draft…</option>`;
+  const all = [];
+  // local drafts
+  listLocalDrafts().forEach(k => {
+    const meta = JSON.parse(localStorage.getItem(k));
+    all.push({key:k, name:meta.name, savedAt:meta.savedAt, source:"local"});
+  });
+  // server drafts (best-effort)
+  fetchServerDrafts().then(server => {
+    server.forEach(d => all.push({key:"server:"+d.key, name:d.name, savedAt:d.savedAt, source:"cloud"}));
+    all.sort((a,b)=>(b.savedAt||"").localeCompare(a.savedAt||""));
+    sel.innerHTML = `<option value="">Load draft…</option>` + all.map(d =>
+      `<option value="${d.key}">${d.source === "cloud" ? "☁️ " : "💾 "}${d.name}</option>`
+    ).join("");
+  });
+}
+async function fetchServerDrafts() {
+  try {
+    const r = await fetch("/api/drafts", {cache:"no-store"});
+    if (!r.ok) return [];
+    return await r.json();
+  } catch { return []; }
+}
+async function saveServerDraft(name, payload) {
+  try {
+    const r = await fetch("/api/drafts", {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({name, payload})
+    });
+    if (!r.ok) return null;
+    return await r.json();
+  } catch { return null; }
+}
+async function loadServerDraft(key) {
+  try {
+    const r = await fetch("/api/drafts/" + encodeURIComponent(key));
+    if (!r.ok) return null;
+    return await r.json();
+  } catch { return null; }
+}
+
+function saveDraft() {
+  const name = prompt("Name this draft (e.g., 'Dad proposal v1'):", state.draftName === "Baseline proposal" ? "Dad proposal v1" : state.draftName);
+  if (!name) return;
+  const payload = { name, savedAt: new Date().toISOString(), assignments: state.assignments };
+  const ts = payload.savedAt.replace(/[:.]/g,"-");
+  const key = LS_PREFIX + ts;
+  localStorage.setItem(key, JSON.stringify(payload));
+  state.draftKey = key;
+  state.draftName = name;
+  state.dirty = false;
+  // best-effort cloud save
+  saveServerDraft(name, payload).then(r => {
+    if (r) showToast(`Draft saved locally + to cloud: ${name}`);
+    else showToast(`Draft saved locally: ${name}`);
+    refreshDraftPicker();
+  });
+  refreshAll();
+}
+
+function loadDraft(key) {
+  if (!key) return;
+  if (state.dirty && !confirm("Discard unsaved changes?")) return;
+  if (key.startsWith("server:")) {
+    loadServerDraft(key.slice(7)).then(d => {
+      if (!d) return showToast("Could not load cloud draft");
+      state.assignments = structuredClone(d.payload.assignments);
+      state.draftKey = key; state.draftName = d.payload.name; state.dirty = false;
+      refreshAll();
+      showToast("Loaded: " + d.payload.name);
+    });
+  } else {
+    const meta = JSON.parse(localStorage.getItem(key));
+    if (!meta) return;
+    state.assignments = structuredClone(meta.assignments);
+    state.draftKey = key; state.draftName = meta.name; state.dirty = false;
+    refreshAll();
+    showToast("Loaded: " + meta.name);
+  }
+}
+
+function exportJSON() {
+  const payload = {
+    name: state.draftName,
+    savedAt: new Date().toISOString(),
+    schoolYear: "2026-2027",
+    schoolDistrict: "Wake County Public Schools (traditional)",
+    assignments: state.assignments,
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  const safeName = (state.draftName || "draft").replace(/[^a-z0-9]+/gi,"-").toLowerCase();
+  a.href = url;
+  a.download = `custody-${safeName}-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast("Exported JSON");
+}
+
+function importJSON(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (!data.assignments) throw new Error("Missing assignments");
+      if (state.dirty && !confirm("Discard unsaved changes?")) return;
+      state.assignments = structuredClone(data.assignments);
+      state.draftName = data.name || "Imported draft";
+      state.draftKey = null;
+      state.dirty = false;
+      refreshAll();
+      showToast("Imported: " + state.draftName);
+    } catch (err) {
+      alert("Invalid JSON: " + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+function resetToBaseline() {
+  if (state.dirty && !confirm("Discard unsaved changes and reset to original proposal?")) return;
+  state.assignments = structuredClone(BASELINE);
+  state.draftName = "Baseline proposal";
+  state.draftKey = null;
+  state.dirty = false;
+  refreshAll();
+  showToast("Reset to baseline proposal");
+}
+
+function renameDraft() {
+  const name = prompt("New name:", state.draftName);
+  if (!name) return;
+  state.draftName = name;
+  if (state.draftKey && state.draftKey.startsWith(LS_PREFIX)) {
+    const meta = JSON.parse(localStorage.getItem(state.draftKey));
+    meta.name = name;
+    localStorage.setItem(state.draftKey, JSON.stringify(meta));
+    refreshDraftPicker();
+  }
+  refreshAll();
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  clearTimeout(showToast._t);
+  showToast._t = setTimeout(()=>t.classList.remove("show"), 2500);
+}
+
+// ============ refresh ============
+function refreshAll() {
+  renderCalendar();
+  refreshStats();
+  refreshTripList();
+  renderFlights();
+  const status = document.getElementById("draft-status");
+  status.textContent = state.draftName + (state.dirty ? " (unsaved)" : "");
+  status.classList.toggle("dirty", state.dirty);
+}
+
+// ============ flights tab ============
+const FLIGHT_META_KEY = "custody_flight_meta";
+let flightMeta = {};
+try { flightMeta = JSON.parse(localStorage.getItem(FLIGHT_META_KEY) || "{}"); } catch { flightMeta = {}; }
+let flightFilter = "all";
+
+function deriveFlights() {
+  const flights = [];
+  const dates = Object.keys(state.assignments).sort();
+
+  // Boys' flights — every "travel" day in the schedule
+  for (const d of dates) {
+    const v = state.assignments[d];
+    if (v.loc === "travel") {
+      const dest = travelDestination(v.note); // "UT" or "NC"
+      flights.push({
+        id: `boys-${d}`,
+        date: d,
+        who: "boys",
+        from: dest === "UT" ? "RDU" : "SLC",
+        to: dest === "UT" ? "SLC" : "RDU",
+        direction: dest === "UT" ? "NC → UT" : "UT → NC",
+        context: v.note || "",
+      });
+    }
+  }
+
+  // Dave's flights — bookend each "visit" block
+  let inVisit = false, vStart = null, vEnd = null;
+  function emitDaveFlights(start, end) {
+    flights.push({
+      id: `dave-out-${start}`,
+      date: start, who: "dave",
+      from: "SLC", to: "RDU", direction: "UT → NC",
+      context: "Arrive in NC for visit",
+    });
+    const next = new Date(end + "T00:00:00");
+    next.setDate(next.getDate() + 1);
+    flights.push({
+      id: `dave-back-${next.toISOString().slice(0,10)}`,
+      date: next.toISOString().slice(0,10), who: "dave",
+      from: "RDU", to: "SLC", direction: "NC → UT",
+      context: "Return home after visit",
+    });
+  }
+  for (const d of dates) {
+    const v = state.assignments[d];
+    if (v.loc === "visit") {
+      if (!inVisit) { inVisit = true; vStart = d; }
+      vEnd = d;
+    } else if (inVisit) {
+      emitDaveFlights(vStart, vEnd);
+      inVisit = false;
+    }
+  }
+  if (inVisit) emitDaveFlights(vStart, vEnd);
+
+  flights.sort((a, b) => a.date.localeCompare(b.date) || a.who.localeCompare(b.who));
+  return flights;
+}
+
+function fmtDate(iso) {
+  const d = new Date(iso + "T00:00:00");
+  return {
+    long: d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }),
+    dow: d.toLocaleDateString("en-US", { weekday: "short" }),
+  };
+}
+
+function renderFlights() {
+  const flights = deriveFlights();
+  const list = document.getElementById("flights-list");
+  if (!list) return;
+
+  // summary
+  const summary = document.getElementById("flights-summary");
+  let booked = 0, completed = 0, totalCost = 0;
+  flights.forEach(f => {
+    const m = flightMeta[f.id] || {};
+    if (m.status === "booked") booked++;
+    if (m.status === "completed") completed++;
+    const c = parseFloat((m.cost || "").replace(/[^0-9.]/g, ""));
+    if (!isNaN(c)) totalCost += c;
+  });
+  const card = (l, v, s) =>
+    `<div class="stat-card"><div class="label">${l}</div><div class="value">${v}<span class="pct">${s||""}</span></div></div>`;
+  summary.innerHTML =
+    card("Total flights", flights.length, "auto-derived from schedule") +
+    card("Boys flights", flights.filter(f=>f.who==="boys").length, "round trips Margaret↔Dave") +
+    card("Dave flights", flights.filter(f=>f.who==="dave").length, "5 NC visits = 10 flights") +
+    card("Booked", booked, `${flights.length - booked - completed} still proposed`) +
+    card("Completed", completed, "") +
+    card("Recorded cost", totalCost ? `$${totalCost.toFixed(0)}` : "—", "sum of entered costs");
+
+  // filtered list
+  const filtered = flights.filter(f => {
+    if (flightFilter === "all") return true;
+    if (flightFilter === "boys") return f.who === "boys";
+    if (flightFilter === "dave") return f.who === "dave";
+    const m = flightMeta[f.id] || {};
+    if (flightFilter === "proposed") return !m.status || m.status === "proposed";
+    return m.status === flightFilter;
+  });
+
+  list.innerHTML = filtered.map(renderFlightRow).join("") ||
+    `<div style="color:var(--muted);font-size:13px;padding:16px;">No flights match this filter.</div>`;
+
+  // wire up edit buttons
+  list.querySelectorAll(".edit-btn").forEach(btn => {
+    btn.onclick = e => toggleFlightEdit(e.target.dataset.flightId);
+  });
+}
+
+function renderFlightRow(f) {
+  const m = flightMeta[f.id] || {};
+  const status = m.status || "proposed";
+  const d = fmtDate(f.date);
+  const whoLabel = f.who === "dave" ? "Dave" : "Boys";
+  const bookingInfo = [m.airline, m.flightNumber, m.confirmation].filter(Boolean).join(" · ");
+  const cost = m.cost ? `· ${m.cost}` : "";
+  return `
+    <div class="flight-row who-${f.who}" id="row-${f.id}">
+      <div class="date">${d.long}<span class="dow">${d.dow}</span></div>
+      <div class="who">${whoLabel}</div>
+      <div>
+        <div class="direction">${f.direction}</div>
+        <div class="context">${f.context}</div>
+      </div>
+      <div>
+        <span class="status ${status}">${status}</span>
+        ${bookingInfo ? `<div class="booking-info">${bookingInfo} ${cost}</div>` : ""}
+      </div>
+      <button class="btn edit-btn" data-flight-id="${f.id}">Edit</button>
+    </div>`;
+}
+
+function toggleFlightEdit(flightId) {
+  const row = document.getElementById(`row-${flightId}`);
+  if (!row) return;
+  const existing = row.querySelector(".flight-edit");
+  if (existing) { existing.remove(); return; }
+  const m = flightMeta[flightId] || {};
+  const editor = document.createElement("div");
+  editor.className = "flight-edit";
+  editor.innerHTML = `
+    <label>Status
+      <select data-field="status">
+        <option value="proposed" ${(m.status||"proposed")==="proposed"?"selected":""}>Proposed</option>
+        <option value="booked" ${m.status==="booked"?"selected":""}>Booked</option>
+        <option value="completed" ${m.status==="completed"?"selected":""}>Completed</option>
+      </select>
+    </label>
+    <label>Airline <input type="text" data-field="airline" value="${(m.airline||'').replace(/"/g,'&quot;')}" placeholder="Delta, United..." /></label>
+    <label>Flight # <input type="text" data-field="flightNumber" value="${(m.flightNumber||'').replace(/"/g,'&quot;')}" placeholder="DL 1234" /></label>
+    <label>Confirmation <input type="text" data-field="confirmation" value="${(m.confirmation||'').replace(/"/g,'&quot;')}" placeholder="ABC123" /></label>
+    <label>Cost <input type="text" data-field="cost" value="${(m.cost||'').replace(/"/g,'&quot;')}" placeholder="$450" /></label>
+    <label>Departure time <input type="text" data-field="depart" value="${(m.depart||'').replace(/"/g,'&quot;')}" placeholder="6:30 PM" /></label>
+    <label style="grid-column:1/-1">Notes
+      <textarea data-field="notes" placeholder="Connections, seat prefs, special instructions...">${(m.notes||'')}</textarea>
+    </label>
+    <div class="save-row">
+      <button class="btn danger" data-action="clear">Clear</button>
+      <button class="btn primary" data-action="save">Save</button>
+    </div>`;
+  row.appendChild(editor);
+
+  editor.querySelector(`[data-action="save"]`).onclick = () => {
+    const fields = ["status","airline","flightNumber","confirmation","cost","depart","notes"];
+    const data = {};
+    fields.forEach(f => {
+      const el = editor.querySelector(`[data-field="${f}"]`);
+      if (el && el.value.trim()) data[f] = el.value.trim();
+    });
+    if (Object.keys(data).length === 0) delete flightMeta[flightId];
+    else flightMeta[flightId] = data;
+    localStorage.setItem(FLIGHT_META_KEY, JSON.stringify(flightMeta));
+    renderFlights();
+    showToast("Flight updated");
+  };
+  editor.querySelector(`[data-action="clear"]`).onclick = () => {
+    delete flightMeta[flightId];
+    localStorage.setItem(FLIGHT_META_KEY, JSON.stringify(flightMeta));
+    renderFlights();
+    showToast("Flight cleared");
+  };
+}
+
+// ============ wire up ============
+document.querySelectorAll(".tool").forEach(el => {
+  el.addEventListener("click", () => {
+    document.querySelectorAll(".tool").forEach(t => t.classList.remove("active"));
+    el.classList.add("active");
+    state.tool = el.dataset.tool;
+  });
+});
+document.querySelector(`.tool[data-tool="nc"]`).classList.add("active");
+document.getElementById("save-btn").onclick = saveDraft;
+document.getElementById("rename-btn").onclick = renameDraft;
+document.getElementById("export-btn").onclick = exportJSON;
+document.getElementById("import-btn").onclick = () => document.getElementById("import-file").click();
+document.getElementById("import-file").onchange = e => { if (e.target.files[0]) importJSON(e.target.files[0]); };
+document.getElementById("reset-btn").onclick = resetToBaseline;
+document.getElementById("draft-picker").onchange = e => loadDraft(e.target.value);
+
+// tabs
+document.querySelectorAll(".tab-btn").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
+    btn.classList.add("active");
+    document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+  };
+});
+// flight filter pills
+document.querySelectorAll(".filter-pill").forEach(p => {
+  p.onclick = () => {
+    document.querySelectorAll(".filter-pill").forEach(x => x.classList.remove("active"));
+    p.classList.add("active");
+    flightFilter = p.dataset.filter;
+    renderFlights();
+  };
+});
+
+window.addEventListener("beforeunload", e => {
+  if (state.dirty) { e.preventDefault(); e.returnValue = ""; }
+});
+
+refreshAll();
+refreshDraftPicker();
+</script>
+</body>
+</html>

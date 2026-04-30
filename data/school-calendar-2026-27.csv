@@ -1,0 +1,46 @@
+date,day_of_week,event_type,description,school_status
+2026-08-17,Monday,Workday,Teacher workday (pre-school),no_school
+2026-08-18,Tuesday,Workday,Teacher workday (pre-school),no_school
+2026-08-19,Wednesday,Workday,Teacher workday (pre-school),no_school
+2026-08-20,Thursday,Workday,Teacher workday (pre-school),no_school
+2026-08-21,Friday,Workday,Teacher workday (pre-school),no_school
+2026-08-24,Monday,FirstDay,First day of school (2026-27),school
+2026-09-07,Monday,Holiday,Labor Day,no_school
+2026-09-21,Monday,Workday,Teacher workday,no_school
+2026-10-12,Monday,Workday,Teacher workday (banked weather makeup),no_school
+2026-10-30,Friday,EndOfQuarter,End of Q1,school
+2026-11-03,Tuesday,Workday,Teacher workday (Election Day),no_school
+2026-11-11,Wednesday,Holiday,Veterans Day,no_school
+2026-11-25,Wednesday,Vacation,Vacation day (Thanksgiving break),no_school
+2026-11-26,Thursday,Holiday,Thanksgiving Day,no_school
+2026-11-27,Friday,Holiday,Day after Thanksgiving,no_school
+2026-12-21,Monday,Workday,Teacher workday (winter break),no_school
+2026-12-22,Tuesday,Workday,Teacher workday (winter break),no_school
+2026-12-23,Wednesday,Vacation,Vacation day (winter break),no_school
+2026-12-24,Thursday,Holiday,Christmas Eve,no_school
+2026-12-25,Friday,Holiday,Christmas Day,no_school
+2026-12-28,Monday,Holiday,Holiday (winter break),no_school
+2026-12-29,Tuesday,Vacation,Vacation day (winter break),no_school
+2026-12-30,Wednesday,Vacation,Vacation day (winter break),no_school
+2026-12-31,Thursday,Vacation,Vacation day (winter break),no_school
+2027-01-01,Friday,Holiday,New Year's Day,no_school
+2027-01-15,Friday,EndOfQuarter,End of Q2,school
+2027-01-18,Monday,Holiday,Martin Luther King Jr. Day,no_school
+2027-01-19,Tuesday,Workday,Teacher workday,no_school
+2027-02-15,Monday,Workday,Teacher workday (banked weather makeup),no_school
+2027-03-10,Wednesday,Workday,Teacher workday,no_school
+2027-03-25,Thursday,EndOfQuarter,End of Q3,school
+2027-03-26,Friday,Holiday,Holiday (Good Friday / spring break start),no_school
+2027-03-29,Monday,Vacation,Spring break,no_school
+2027-03-30,Tuesday,Vacation,Spring break,no_school
+2027-03-31,Wednesday,Vacation,Spring break,no_school
+2027-04-01,Thursday,Vacation,Spring break,no_school
+2027-04-02,Friday,Vacation,Spring break,no_school
+2027-04-05,Monday,Workday,Teacher workday (banked weather makeup),no_school
+2027-05-17,Monday,Workday,Teacher workday,no_school
+2027-05-31,Monday,Holiday,Memorial Day,no_school
+2027-06-08,Tuesday,LastDay,Last day of school (2026-27),school
+2027-06-09,Wednesday,Workday,Teacher workday / End of Q4,no_school
+2027-06-10,Thursday,Workday,Teacher workday,no_school
+2027-06-11,Friday,Workday,Teacher workday,no_school
+2027-08-23,Monday,FirstDay,First day of school (2027-28),school

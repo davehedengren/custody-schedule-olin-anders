@@ -1,0 +1,366 @@
+date,day_of_week,location,notes
+2026-08-23,Sunday,Travel,Fly UT->NC (school starts Mon)
+2026-08-24,Monday,NC,School
+2026-08-25,Tuesday,NC,School
+2026-08-26,Wednesday,NC,School
+2026-08-27,Thursday,NC,School
+2026-08-28,Friday,NC,School
+2026-08-29,Saturday,NC,School
+2026-08-30,Sunday,NC,School
+2026-08-31,Monday,NC,School
+2026-09-01,Tuesday,NC,School
+2026-09-02,Wednesday,NC,School
+2026-09-03,Thursday,NC,School
+2026-09-04,Friday,NC,School
+2026-09-05,Saturday,NC,School
+2026-09-06,Sunday,NC,School
+2026-09-07,Monday,NC,School
+2026-09-08,Tuesday,NC,School
+2026-09-09,Wednesday,NC+Dad,Dad visiting NC (7 days)
+2026-09-10,Thursday,NC+Dad,Dad visiting NC (7 days)
+2026-09-11,Friday,NC+Dad,Dad visiting NC (7 days)
+2026-09-12,Saturday,NC+Dad,Dad visiting NC (7 days)
+2026-09-13,Sunday,NC+Dad,Dad visiting NC (7 days)
+2026-09-14,Monday,NC+Dad,Dad visiting NC (7 days)
+2026-09-15,Tuesday,NC+Dad,Dad visiting NC (7 days)
+2026-09-16,Wednesday,NC,School
+2026-09-17,Thursday,NC,School
+2026-09-18,Friday,NC,School
+2026-09-19,Saturday,NC,School
+2026-09-20,Sunday,NC,School
+2026-09-21,Monday,NC,School
+2026-09-22,Tuesday,NC,School
+2026-09-23,Wednesday,NC,School
+2026-09-24,Thursday,NC,School
+2026-09-25,Friday,NC,School
+2026-09-26,Saturday,NC,School
+2026-09-27,Sunday,NC,School
+2026-09-28,Monday,NC,School
+2026-09-29,Tuesday,NC,School
+2026-09-30,Wednesday,NC,School
+2026-10-01,Thursday,NC,School
+2026-10-02,Friday,NC,School
+2026-10-03,Saturday,NC,School
+2026-10-04,Sunday,NC,School
+2026-10-05,Monday,NC,School
+2026-10-06,Tuesday,NC,School
+2026-10-07,Wednesday,NC,School
+2026-10-08,Thursday,NC,School
+2026-10-09,Friday,Travel,Fly NC->UT Fri evening (fall break)
+2026-10-10,Saturday,UT,Long weekend in UT
+2026-10-11,Sunday,UT,Long weekend in UT
+2026-10-12,Monday,Travel,Fly UT->NC Mon evening (workday)
+2026-10-13,Tuesday,NC,School
+2026-10-14,Wednesday,NC,School
+2026-10-15,Thursday,NC,School
+2026-10-16,Friday,NC,School
+2026-10-17,Saturday,NC,School
+2026-10-18,Sunday,NC,School
+2026-10-19,Monday,NC,School
+2026-10-20,Tuesday,NC,School
+2026-10-21,Wednesday,NC,School
+2026-10-22,Thursday,NC,School
+2026-10-23,Friday,NC,School
+2026-10-24,Saturday,NC,School
+2026-10-25,Sunday,NC,School
+2026-10-26,Monday,NC,School
+2026-10-27,Tuesday,NC,School
+2026-10-28,Wednesday,NC,School
+2026-10-29,Thursday,NC,School
+2026-10-30,Friday,NC,School
+2026-10-31,Saturday,NC,School
+2026-11-01,Sunday,NC,School
+2026-11-02,Monday,NC,School
+2026-11-03,Tuesday,NC,School
+2026-11-04,Wednesday,NC,School
+2026-11-05,Thursday,NC,School
+2026-11-06,Friday,NC,School
+2026-11-07,Saturday,NC,School
+2026-11-08,Sunday,NC,School
+2026-11-09,Monday,NC,School
+2026-11-10,Tuesday,NC,School
+2026-11-11,Wednesday,NC+Dad,Dad visiting NC (7 days)
+2026-11-12,Thursday,NC+Dad,Dad visiting NC (7 days)
+2026-11-13,Friday,NC+Dad,Dad visiting NC (7 days)
+2026-11-14,Saturday,NC+Dad,Dad visiting NC (7 days)
+2026-11-15,Sunday,NC+Dad,Dad visiting NC (7 days)
+2026-11-16,Monday,NC+Dad,Dad visiting NC (7 days)
+2026-11-17,Tuesday,NC+Dad,Dad visiting NC (7 days)
+2026-11-18,Wednesday,NC,School
+2026-11-19,Thursday,NC,School
+2026-11-20,Friday,NC,School
+2026-11-21,Saturday,NC,School
+2026-11-22,Sunday,NC,School
+2026-11-23,Monday,NC,School
+2026-11-24,Tuesday,NC,School
+2026-11-25,Wednesday,NC,Thanksgiving in NC with Mom
+2026-11-26,Thursday,NC,Thanksgiving in NC with Mom
+2026-11-27,Friday,NC,Thanksgiving in NC with Mom
+2026-11-28,Saturday,NC,Thanksgiving in NC with Mom
+2026-11-29,Sunday,NC,Thanksgiving in NC with Mom
+2026-11-30,Monday,NC,School
+2026-12-01,Tuesday,NC,School
+2026-12-02,Wednesday,NC,School
+2026-12-03,Thursday,NC,School
+2026-12-04,Friday,NC,School
+2026-12-05,Saturday,NC,School
+2026-12-06,Sunday,NC,School
+2026-12-07,Monday,NC,School
+2026-12-08,Tuesday,NC,School
+2026-12-09,Wednesday,NC,School
+2026-12-10,Thursday,NC,School
+2026-12-11,Friday,NC,School
+2026-12-12,Saturday,NC,School
+2026-12-13,Sunday,NC,School
+2026-12-14,Monday,NC,School
+2026-12-15,Tuesday,NC,School
+2026-12-16,Wednesday,NC,School
+2026-12-17,Thursday,NC,School
+2026-12-18,Friday,NC,School
+2026-12-19,Saturday,Travel,Fly NC->UT (winter break)
+2026-12-20,Sunday,UT,Winter break in UT
+2026-12-21,Monday,UT,Winter break in UT
+2026-12-22,Tuesday,UT,Winter break in UT
+2026-12-23,Wednesday,UT,Winter break in UT
+2026-12-24,Thursday,UT,Winter break in UT
+2026-12-25,Friday,UT,Winter break in UT
+2026-12-26,Saturday,UT,Winter break in UT
+2026-12-27,Sunday,UT,Winter break in UT
+2026-12-28,Monday,UT,Winter break in UT
+2026-12-29,Tuesday,UT,Winter break in UT
+2026-12-30,Wednesday,UT,Winter break in UT
+2026-12-31,Thursday,UT,Winter break in UT
+2027-01-01,Friday,UT,Winter break in UT
+2027-01-02,Saturday,UT,Winter break in UT
+2027-01-03,Sunday,Travel,Fly UT->NC
+2027-01-04,Monday,NC,School
+2027-01-05,Tuesday,NC,School
+2027-01-06,Wednesday,NC,School
+2027-01-07,Thursday,NC,School
+2027-01-08,Friday,NC,School
+2027-01-09,Saturday,NC,School
+2027-01-10,Sunday,NC,School
+2027-01-11,Monday,NC,School
+2027-01-12,Tuesday,NC,School
+2027-01-13,Wednesday,NC,School
+2027-01-14,Thursday,NC,School
+2027-01-15,Friday,Travel,Fly NC->UT Fri evening (MLK weekend)
+2027-01-16,Saturday,UT,Long weekend in UT
+2027-01-17,Sunday,UT,Long weekend in UT
+2027-01-18,Monday,UT,Long weekend in UT
+2027-01-19,Tuesday,Travel,Fly UT->NC Tue evening (workday)
+2027-01-20,Wednesday,NC,School
+2027-01-21,Thursday,NC,School
+2027-01-22,Friday,NC,School
+2027-01-23,Saturday,NC,School
+2027-01-24,Sunday,NC,School
+2027-01-25,Monday,NC,School
+2027-01-26,Tuesday,NC,School
+2027-01-27,Wednesday,NC,School
+2027-01-28,Thursday,NC,School
+2027-01-29,Friday,NC,School
+2027-01-30,Saturday,NC,School
+2027-01-31,Sunday,NC,School
+2027-02-01,Monday,NC,School
+2027-02-02,Tuesday,NC,School
+2027-02-03,Wednesday,NC,School
+2027-02-04,Thursday,NC,School
+2027-02-05,Friday,NC+Dad,Dad visiting NC (7 days)
+2027-02-06,Saturday,NC+Dad,Dad visiting NC (7 days)
+2027-02-07,Sunday,NC+Dad,Dad visiting NC (7 days)
+2027-02-08,Monday,NC+Dad,Dad visiting NC (7 days)
+2027-02-09,Tuesday,NC+Dad,Dad visiting NC (7 days)
+2027-02-10,Wednesday,NC+Dad,Dad visiting NC (7 days)
+2027-02-11,Thursday,NC+Dad,Dad visiting NC (7 days)
+2027-02-12,Friday,NC,School
+2027-02-13,Saturday,NC,School
+2027-02-14,Sunday,NC,School
+2027-02-15,Monday,NC,School
+2027-02-16,Tuesday,NC,School
+2027-02-17,Wednesday,NC,School
+2027-02-18,Thursday,NC,School
+2027-02-19,Friday,NC,School
+2027-02-20,Saturday,NC,School
+2027-02-21,Sunday,NC,School
+2027-02-22,Monday,NC,School
+2027-02-23,Tuesday,NC,School
+2027-02-24,Wednesday,NC,School
+2027-02-25,Thursday,NC,School
+2027-02-26,Friday,NC,School
+2027-02-27,Saturday,NC,School
+2027-02-28,Sunday,NC,School
+2027-03-01,Monday,NC,School
+2027-03-02,Tuesday,NC,School
+2027-03-03,Wednesday,NC,School
+2027-03-04,Thursday,NC,School
+2027-03-05,Friday,NC,School
+2027-03-06,Saturday,NC,School
+2027-03-07,Sunday,NC,School
+2027-03-08,Monday,NC,School
+2027-03-09,Tuesday,NC,School
+2027-03-10,Wednesday,NC+Dad,Dad visiting NC (7 days)
+2027-03-11,Thursday,NC+Dad,Dad visiting NC (7 days)
+2027-03-12,Friday,NC+Dad,Dad visiting NC (7 days)
+2027-03-13,Saturday,NC+Dad,Dad visiting NC (7 days)
+2027-03-14,Sunday,NC+Dad,Dad visiting NC (7 days)
+2027-03-15,Monday,NC+Dad,Dad visiting NC (7 days)
+2027-03-16,Tuesday,NC+Dad,Dad visiting NC (7 days)
+2027-03-17,Wednesday,NC,School (end of Q3)
+2027-03-18,Thursday,NC,School (end of Q3)
+2027-03-19,Friday,NC,School (end of Q3)
+2027-03-20,Saturday,NC,School (end of Q3)
+2027-03-21,Sunday,NC,School (end of Q3)
+2027-03-22,Monday,NC,School (end of Q3)
+2027-03-23,Tuesday,NC,School (end of Q3)
+2027-03-24,Wednesday,NC,School (end of Q3)
+2027-03-25,Thursday,NC,School (end of Q3)
+2027-03-26,Friday,Travel,Fly NC->UT (spring break)
+2027-03-27,Saturday,UT,Spring break in UT
+2027-03-28,Sunday,UT,Spring break in UT
+2027-03-29,Monday,UT,Spring break in UT
+2027-03-30,Tuesday,UT,Spring break in UT
+2027-03-31,Wednesday,UT,Spring break in UT
+2027-04-01,Thursday,UT,Spring break in UT
+2027-04-02,Friday,UT,Spring break in UT
+2027-04-03,Saturday,UT,Spring break in UT
+2027-04-04,Sunday,UT,Spring break in UT
+2027-04-05,Monday,Travel,Fly UT->NC
+2027-04-06,Tuesday,NC,School
+2027-04-07,Wednesday,NC,School
+2027-04-08,Thursday,NC,School
+2027-04-09,Friday,NC,School
+2027-04-10,Saturday,NC,School
+2027-04-11,Sunday,NC,School
+2027-04-12,Monday,NC,School
+2027-04-13,Tuesday,NC,School
+2027-04-14,Wednesday,NC,School
+2027-04-15,Thursday,NC,School
+2027-04-16,Friday,NC,School
+2027-04-17,Saturday,NC,School
+2027-04-18,Sunday,NC,School
+2027-04-19,Monday,NC,School
+2027-04-20,Tuesday,NC,School
+2027-04-21,Wednesday,NC,School
+2027-04-22,Thursday,NC,School
+2027-04-23,Friday,NC,School
+2027-04-24,Saturday,NC,School
+2027-04-25,Sunday,NC,School
+2027-04-26,Monday,NC,School
+2027-04-27,Tuesday,NC,School
+2027-04-28,Wednesday,NC,School
+2027-04-29,Thursday,NC,School
+2027-04-30,Friday,NC,School
+2027-05-01,Saturday,NC,School
+2027-05-02,Sunday,NC,School
+2027-05-03,Monday,NC,School
+2027-05-04,Tuesday,NC,School
+2027-05-05,Wednesday,NC+Dad,Dad visiting NC (7 days)
+2027-05-06,Thursday,NC+Dad,Dad visiting NC (7 days)
+2027-05-07,Friday,NC+Dad,Dad visiting NC (7 days)
+2027-05-08,Saturday,NC+Dad,Dad visiting NC (7 days)
+2027-05-09,Sunday,NC+Dad,Dad visiting NC (7 days)
+2027-05-10,Monday,NC+Dad,Dad visiting NC (7 days)
+2027-05-11,Tuesday,NC+Dad,Dad visiting NC (7 days)
+2027-05-12,Wednesday,NC,School
+2027-05-13,Thursday,NC,School
+2027-05-14,Friday,NC,School
+2027-05-15,Saturday,NC,School
+2027-05-16,Sunday,NC,School
+2027-05-17,Monday,NC,School
+2027-05-18,Tuesday,NC,School
+2027-05-19,Wednesday,NC,School
+2027-05-20,Thursday,NC,School
+2027-05-21,Friday,NC,School
+2027-05-22,Saturday,NC,School
+2027-05-23,Sunday,NC,School
+2027-05-24,Monday,NC,School
+2027-05-25,Tuesday,NC,School
+2027-05-26,Wednesday,NC,School
+2027-05-27,Thursday,NC,School
+2027-05-28,Friday,Travel,Fly NC->UT Fri evening (Memorial Day)
+2027-05-29,Saturday,UT,Long weekend in UT
+2027-05-30,Sunday,UT,Long weekend in UT
+2027-05-31,Monday,Travel,Fly UT->NC Mon evening (Memorial Day)
+2027-06-01,Tuesday,NC,School (last day Jun 8)
+2027-06-02,Wednesday,NC,School (last day Jun 8)
+2027-06-03,Thursday,NC,School (last day Jun 8)
+2027-06-04,Friday,NC,School (last day Jun 8)
+2027-06-05,Saturday,NC,School (last day Jun 8)
+2027-06-06,Sunday,NC,School (last day Jun 8)
+2027-06-07,Monday,NC,School (last day Jun 8)
+2027-06-08,Tuesday,NC,School (last day Jun 8)
+2027-06-09,Wednesday,Travel,Fly NC->UT (summer)
+2027-06-10,Thursday,UT,Summer with Dad
+2027-06-11,Friday,UT,Summer with Dad
+2027-06-12,Saturday,UT,Summer with Dad
+2027-06-13,Sunday,UT,Summer with Dad
+2027-06-14,Monday,UT,Summer with Dad
+2027-06-15,Tuesday,UT,Summer with Dad
+2027-06-16,Wednesday,UT,Summer with Dad
+2027-06-17,Thursday,UT,Summer with Dad
+2027-06-18,Friday,UT,Summer with Dad
+2027-06-19,Saturday,UT,Summer with Dad
+2027-06-20,Sunday,UT,Summer with Dad
+2027-06-21,Monday,UT,Summer with Dad
+2027-06-22,Tuesday,UT,Summer with Dad
+2027-06-23,Wednesday,UT,Summer with Dad
+2027-06-24,Thursday,UT,Summer with Dad
+2027-06-25,Friday,UT,Summer with Dad
+2027-06-26,Saturday,UT,Summer with Dad
+2027-06-27,Sunday,UT,Summer with Dad
+2027-06-28,Monday,UT,Summer with Dad
+2027-06-29,Tuesday,UT,Summer with Dad
+2027-06-30,Wednesday,UT,Summer with Dad
+2027-07-01,Thursday,UT,Summer with Dad
+2027-07-02,Friday,UT,Summer with Dad
+2027-07-03,Saturday,UT,Summer with Dad
+2027-07-04,Sunday,UT,Summer with Dad
+2027-07-05,Monday,UT,Summer with Dad
+2027-07-06,Tuesday,UT,Summer with Dad
+2027-07-07,Wednesday,UT,Summer with Dad
+2027-07-08,Thursday,UT,Summer with Dad
+2027-07-09,Friday,UT,Summer with Dad
+2027-07-10,Saturday,UT,Summer with Dad
+2027-07-11,Sunday,UT,Summer with Dad
+2027-07-12,Monday,UT,Summer with Dad
+2027-07-13,Tuesday,UT,Summer with Dad
+2027-07-14,Wednesday,UT,Summer with Dad
+2027-07-15,Thursday,UT,Summer with Dad
+2027-07-16,Friday,UT,Summer with Dad
+2027-07-17,Saturday,UT,Summer with Dad
+2027-07-18,Sunday,UT,Summer with Dad
+2027-07-19,Monday,UT,Summer with Dad
+2027-07-20,Tuesday,UT,Summer with Dad
+2027-07-21,Wednesday,UT,Summer with Dad
+2027-07-22,Thursday,UT,Summer with Dad
+2027-07-23,Friday,UT,Summer with Dad
+2027-07-24,Saturday,UT,Summer with Dad
+2027-07-25,Sunday,UT,Summer with Dad
+2027-07-26,Monday,UT,Summer with Dad
+2027-07-27,Tuesday,UT,Summer with Dad
+2027-07-28,Wednesday,UT,Summer with Dad
+2027-07-29,Thursday,UT,Summer with Dad
+2027-07-30,Friday,UT,Summer with Dad
+2027-07-31,Saturday,UT,Summer with Dad
+2027-08-01,Sunday,UT,Summer with Dad
+2027-08-02,Monday,UT,Summer with Dad
+2027-08-03,Tuesday,UT,Summer with Dad
+2027-08-04,Wednesday,UT,Summer with Dad
+2027-08-05,Thursday,UT,Summer with Dad
+2027-08-06,Friday,UT,Summer with Dad
+2027-08-07,Saturday,UT,Summer with Dad
+2027-08-08,Sunday,UT,Summer with Dad
+2027-08-09,Monday,UT,Summer with Dad
+2027-08-10,Tuesday,UT,Summer with Dad
+2027-08-11,Wednesday,UT,Summer with Dad
+2027-08-12,Thursday,UT,Summer with Dad
+2027-08-13,Friday,UT,Summer with Dad
+2027-08-14,Saturday,UT,Summer with Dad
+2027-08-15,Sunday,UT,Summer with Dad
+2027-08-16,Monday,UT,Summer with Dad
+2027-08-17,Tuesday,UT,Summer with Dad
+2027-08-18,Wednesday,UT,Summer with Dad
+2027-08-19,Thursday,UT,Summer with Dad
+2027-08-20,Friday,UT,Summer with Dad
+2027-08-21,Saturday,Travel,Fly UT->NC Sat (2 days before school)
+2027-08-22,Sunday,NC,NC - day before first day of school
