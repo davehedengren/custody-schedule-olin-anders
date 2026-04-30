@@ -207,6 +207,30 @@
   }
   .toast.show { opacity: 1; }
 
+  /* login gate */
+  .login-overlay {
+    position: fixed; inset: 0; background: var(--bg);
+    display: flex; align-items: center; justify-content: center; z-index: 1000;
+  }
+  .login-overlay.hidden { display: none; }
+  .login-card {
+    background: white; padding: 32px; border-radius: 12px;
+    border: 1px solid #e0e0e0; max-width: 380px; width: 90%; text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  }
+  .login-card h2 { margin: 0 0 8px; font-size: 18px; }
+  .login-card p { color: var(--muted); margin: 0 0 20px; font-size: 13px; }
+  .login-card form { display: flex; gap: 8px; }
+  .login-card input {
+    flex: 1; padding: 8px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px;
+  }
+  .login-card input:focus { outline: none; border-color: var(--ut); }
+  .login-error { color: #c62828; font-size: 13px; margin-top: 10px; min-height: 18px; }
+  .lock-link {
+    font-size: 11px; color: var(--muted); cursor: pointer;
+    text-decoration: underline; margin-left: 8px;
+  }
+
   /* tabs */
   .tabs-bar {
     display: flex; gap: 4px; border-bottom: 1px solid #e0e0e0;
@@ -276,6 +300,18 @@
 </head>
 <body>
 
+<div id="login-overlay" class="login-overlay">
+  <div class="login-card">
+    <h2>Olin &amp; Anders Custody Schedule</h2>
+    <p>Private — enter password to view.</p>
+    <form id="login-form">
+      <input type="password" id="login-pw" autofocus autocomplete="current-password" />
+      <button type="submit" class="btn primary">Unlock</button>
+    </form>
+    <div id="login-error" class="login-error"></div>
+  </div>
+</div>
+
 <div class="topbar">
   <h1>Olin &amp; Anders — Proposal 2026-27</h1>
   <span class="draft-name" id="draft-status">Baseline proposal</span>
@@ -287,6 +323,7 @@
   <button class="btn" id="import-btn">Import JSON</button>
   <input type="file" id="import-file" accept="application/json" style="display:none" />
   <button class="btn danger" id="reset-btn">Reset</button>
+  <span class="lock-link" id="lock-link" title="Sign out and require password again">Lock</span>
 </div>
 
 <div class="container">
@@ -1042,6 +1079,32 @@ window.addEventListener("beforeunload", e => {
 
 refreshAll();
 refreshDraftPicker();
+
+// ============ password gate ============
+// Note: client-side password is lightweight gating, not real security — the
+// password is visible to anyone who reads the page source.
+const APP_PASSWORD = "olinandanders";
+const UNLOCK_KEY = "custody_unlocked_v1";
+const overlay = document.getElementById("login-overlay");
+function unlock() {
+  localStorage.setItem(UNLOCK_KEY, "1");
+  overlay.classList.add("hidden");
+}
+function lock() {
+  localStorage.removeItem(UNLOCK_KEY);
+  overlay.classList.remove("hidden");
+  document.getElementById("login-pw").value = "";
+  document.getElementById("login-pw").focus();
+}
+if (localStorage.getItem(UNLOCK_KEY) === "1") overlay.classList.add("hidden");
+document.getElementById("login-form").onsubmit = e => {
+  e.preventDefault();
+  const pw = document.getElementById("login-pw").value.trim().toLowerCase();
+  const err = document.getElementById("login-error");
+  if (pw === APP_PASSWORD) { err.textContent = ""; unlock(); }
+  else { err.textContent = "Incorrect password."; }
+};
+document.getElementById("lock-link").onclick = lock;
 </script>
 </body>
 </html>
