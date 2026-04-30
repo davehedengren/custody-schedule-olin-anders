@@ -1,15 +1,8 @@
 {
-  "name": "Dad's starting bid (2026-04-30)",
-  "savedAt": "2026-04-30T00:00:00.000Z",
+  "name": "Baseline proposal",
+  "savedAt": "2026-04-30T18:44:23.485Z",
   "schoolYear": "2026-2027",
   "schoolDistrict": "Wake County Public Schools (traditional)",
-  "trackedRange": {"start": "2026-08-23", "end": "2027-08-22", "totalDays": 365},
-  "summary": {
-    "totalNights": 365,
-    "nightsWithMom": 222,
-    "nightsWithDad": 143,
-    "splitNote": "365-day window. Each unique date counted once. Travel days attributed by overnight destination. NC+Dad visit days count as Dad's nights."
-  },
   "assignments": {
     "2026-08-23": {
       "loc": "travel",
