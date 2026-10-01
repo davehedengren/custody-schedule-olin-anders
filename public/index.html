@@ -281,6 +281,7 @@
   .status.booked { background: #e3f2fd; color: #1565c0; }
   .status.completed { background: #e8f5e9; color: #2e7d32; }
   .flight-row .booking-info { font-size: 12px; color: #555; }
+  .flight-row .flight-notes { white-space: pre-wrap; }
   .flight-row .edit-btn { padding: 4px 10px; font-size: 12px; }
   .flight-edit {
     grid-column: 1 / -1;
@@ -363,6 +364,7 @@
   </div><!-- /tab-calendar -->
 
   <div id="tab-flights" class="tab-pane">
+    <p style="font-size:13px;color:var(--muted)">Flight details can differ from the calendar dates. After editing flights, use <strong>Save Draft</strong> to share them. Enter a shared round-trip cost on only one flight.</p>
     <div class="flights-summary" id="flights-summary"></div>
     <div class="flights-filter" id="flights-filter">
       <span class="label" style="font-size:12px;color:var(--muted);">Filter:</span>
@@ -493,6 +495,8 @@ const state = {
   tool: "nc",
   lastClickedDate: null,
 };
+// Any deliberate action wins over an earlier, still-pending draft load.
+let draftActionVersion = 0;
 
 // ============ rendering ============
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
@@ -589,6 +593,7 @@ function applyTool(date, tool) {
 }
 
 function onDayClick(date, e) {
+  draftActionVersion++;
   if (e.shiftKey && state.lastClickedDate) {
     const a = state.lastClickedDate, b = date;
     const [s,end] = a < b ? [a,b] : [b,a];
@@ -680,36 +685,79 @@ function refreshTripList() {
 const LS_PREFIX = "custody_draft_";
 function listLocalDrafts() {
   const keys = [];
-  for (let i=0;i<localStorage.length;i++) {
-    const k = localStorage.key(i);
-    if (k && k.startsWith(LS_PREFIX)) keys.push(k);
-  }
+  try {
+    for (let i=0;i<localStorage.length;i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(LS_PREFIX)) keys.push(k);
+    }
+  } catch { /* Browser storage may be unavailable. */ }
   return keys;
 }
-function refreshDraftPicker() {
+function isValidDraft(payload) {
+  const assignments = payload?.assignments;
+  return assignments && typeof assignments === "object" && !Array.isArray(assignments) &&
+    Object.keys(assignments).length > 0 && Object.entries(assignments).every(([date, day]) =>
+      /^\d{4}-\d{2}-\d{2}$/.test(date) && day &&
+      ["nc", "ut", "visit", "travel"].includes(day.loc) &&
+      (day.note === undefined || typeof day.note === "string"));
+}
+function readLocalDraft(key) {
+  try {
+    const payload = JSON.parse(localStorage.getItem(key));
+    return isValidDraft(payload) ? payload : null;
+  } catch { return null; }
+}
+function draftName(payload) {
+  return typeof payload.name === "string" && payload.name ? payload.name : "Untitled draft";
+}
+let draftPickerRequest = 0;
+async function refreshDraftPicker({loadLatest = false} = {}) {
+  const request = ++draftPickerRequest;
+  const actionVersion = draftActionVersion;
   const sel = document.getElementById("draft-picker");
-  sel.innerHTML = `<option value="">Load draft…</option>`;
   const all = [];
-  // local drafts
   listLocalDrafts().forEach(k => {
-    const meta = JSON.parse(localStorage.getItem(k));
-    all.push({key:k, name:meta.name, savedAt:meta.savedAt, source:"local"});
+    const meta = readLocalDraft(k);
+    if (meta) all.push({key:k, name:draftName(meta), savedAt:meta.savedAt, source:"local"});
   });
-  // server drafts (best-effort)
-  fetchServerDrafts().then(server => {
-    server.forEach(d => all.push({key:"server:"+d.key, name:d.name, savedAt:d.savedAt, source:"cloud"}));
-    all.sort((a,b)=>(b.savedAt||"").localeCompare(a.savedAt||""));
-    sel.innerHTML = `<option value="">Load draft…</option>` + all.map(d =>
-      `<option value="${d.key}">${d.source === "cloud" ? "☁️ " : "💾 "}${d.name}</option>`
-    ).join("");
+  const server = await fetchServerDrafts();
+  if (request !== draftPickerRequest) return;
+  server.forEach(d => all.push({key:"server:"+d.key, name:draftName(d), savedAt:d.savedAt, source:"cloud"}));
+  const savedTime = d => Date.parse(d.savedAt) || 0;
+  all.sort((a,b) => savedTime(b) - savedTime(a) || a.key.localeCompare(b.key));
+  sel.innerHTML = `<option value="">Load draft…</option>`;
+  all.forEach(d => {
+    const option = document.createElement("option");
+    option.value = d.key;
+    option.textContent = `${d.source === "cloud" ? "☁️ " : "💾 "}${d.name}`;
+    sel.appendChild(option);
   });
+  sel.value = state.draftKey || "";
+  if (!loadLatest) return;
+  // Skip unavailable or damaged saves, falling back to the baseline if none load.
+  for (const draft of all) {
+    if (actionVersion !== draftActionVersion || request !== draftPickerRequest) return;
+    const payload = await readDraft(draft.key);
+    if (actionVersion !== draftActionVersion || request !== draftPickerRequest) return;
+    if (payload) {
+      applyDraft(payload, draft.key);
+      return;
+    }
+  }
+}
+async function fetchDraftJSON(url) {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
+  try {
+    const r = await fetch(url, {cache:"no-store", signal:controller.signal});
+    if (!r.ok) return null;
+    return await r.json();
+  } catch { return null; }
+  finally { clearTimeout(timeout); }
 }
 async function fetchServerDrafts() {
-  try {
-    const r = await fetch("/api/drafts", {cache:"no-store"});
-    if (!r.ok) return [];
-    return await r.json();
-  } catch { return []; }
+  const drafts = await fetchDraftJSON("/api/drafts");
+  return Array.isArray(drafts) ? drafts.filter(d => d && typeof d.key === "string") : [];
 }
 async function saveServerDraft(name, payload) {
   try {
@@ -722,17 +770,14 @@ async function saveServerDraft(name, payload) {
   } catch { return null; }
 }
 async function loadServerDraft(key) {
-  try {
-    const r = await fetch("/api/drafts/" + encodeURIComponent(key));
-    if (!r.ok) return null;
-    return await r.json();
-  } catch { return null; }
+  return fetchDraftJSON("/api/drafts/" + encodeURIComponent(key));
 }
 
 function saveDraft() {
   const name = prompt("Name this draft (e.g., 'Dad proposal v1'):", state.draftName === "Baseline proposal" ? "Dad proposal v1" : state.draftName);
   if (!name) return;
-  const payload = { name, savedAt: new Date().toISOString(), assignments: state.assignments };
+  draftActionVersion++;
+  const payload = { name, savedAt: new Date().toISOString(), assignments: structuredClone(state.assignments), flightMeta: structuredClone(flightMeta) };
   const ts = payload.savedAt.replace(/[:.]/g,"-");
   const key = LS_PREFIX + ts;
   localStorage.setItem(key, JSON.stringify(payload));
@@ -748,25 +793,35 @@ function saveDraft() {
   refreshAll();
 }
 
-function loadDraft(key) {
+async function readDraft(key) {
+  if (!key.startsWith("server:")) return readLocalDraft(key);
+  const draft = await loadServerDraft(key.slice(7));
+  return isValidDraft(draft?.payload) ? draft.payload : null;
+}
+function applyDraft(payload, key) {
+  state.assignments = structuredClone(payload.assignments);
+  applyDraftFlightMeta(payload);
+  state.draftKey = key;
+  state.draftName = draftName(payload);
+  state.dirty = false;
+  state.lastClickedDate = null;
+  refreshAll();
+}
+async function loadDraft(key) {
   if (!key) return;
-  if (state.dirty && !confirm("Discard unsaved changes?")) return;
-  if (key.startsWith("server:")) {
-    loadServerDraft(key.slice(7)).then(d => {
-      if (!d) return showToast("Could not load cloud draft");
-      state.assignments = structuredClone(d.payload.assignments);
-      state.draftKey = key; state.draftName = d.payload.name; state.dirty = false;
-      refreshAll();
-      showToast("Loaded: " + d.payload.name);
-    });
-  } else {
-    const meta = JSON.parse(localStorage.getItem(key));
-    if (!meta) return;
-    state.assignments = structuredClone(meta.assignments);
-    state.draftKey = key; state.draftName = meta.name; state.dirty = false;
-    refreshAll();
-    showToast("Loaded: " + meta.name);
+  const actionVersion = ++draftActionVersion;
+  if (state.dirty && !confirm("Discard unsaved changes?")) {
+    document.getElementById("draft-picker").value = state.draftKey || "";
+    return;
   }
+  const payload = await readDraft(key);
+  if (actionVersion !== draftActionVersion) return;
+  if (!payload) {
+    document.getElementById("draft-picker").value = state.draftKey || "";
+    return showToast("Could not load draft");
+  }
+  applyDraft(payload, key);
+  showToast("Loaded: " + state.draftName);
 }
 
 function exportJSON() {
@@ -776,6 +831,7 @@ function exportJSON() {
     schoolYear: "2026-2027",
     schoolDistrict: "Wake County Public Schools (traditional)",
     assignments: state.assignments,
+    flightMeta,
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
   const url = URL.createObjectURL(blob);
@@ -789,16 +845,20 @@ function exportJSON() {
 }
 
 function importJSON(file) {
+  const actionVersion = ++draftActionVersion;
   const reader = new FileReader();
   reader.onload = e => {
+    if (actionVersion !== draftActionVersion) return;
     try {
       const data = JSON.parse(e.target.result);
-      if (!data.assignments) throw new Error("Missing assignments");
+      if (!isValidDraft(data)) throw new Error("Missing or invalid assignments");
       if (state.dirty && !confirm("Discard unsaved changes?")) return;
       state.assignments = structuredClone(data.assignments);
-      state.draftName = data.name || "Imported draft";
+      applyDraftFlightMeta(data);
+      state.draftName = typeof data.name === "string" && data.name ? data.name : "Imported draft";
       state.draftKey = null;
       state.dirty = false;
+      state.lastClickedDate = null;
       refreshAll();
       showToast("Imported: " + state.draftName);
     } catch (err) {
@@ -809,11 +869,13 @@ function importJSON(file) {
 }
 
 function resetToBaseline() {
+  draftActionVersion++;
   if (state.dirty && !confirm("Discard unsaved changes and reset to original proposal?")) return;
   state.assignments = structuredClone(BASELINE);
   state.draftName = "Baseline proposal";
   state.draftKey = null;
   state.dirty = false;
+  state.lastClickedDate = null;
   refreshAll();
   showToast("Reset to baseline proposal");
 }
@@ -821,12 +883,15 @@ function resetToBaseline() {
 function renameDraft() {
   const name = prompt("New name:", state.draftName);
   if (!name) return;
+  draftActionVersion++;
   state.draftName = name;
   if (state.draftKey && state.draftKey.startsWith(LS_PREFIX)) {
-    const meta = JSON.parse(localStorage.getItem(state.draftKey));
-    meta.name = name;
-    localStorage.setItem(state.draftKey, JSON.stringify(meta));
-    refreshDraftPicker();
+    const meta = readLocalDraft(state.draftKey);
+    if (meta) {
+      meta.name = name;
+      localStorage.setItem(state.draftKey, JSON.stringify(meta));
+      refreshDraftPicker();
+    }
   }
   refreshAll();
 }
@@ -848,30 +913,82 @@ function refreshAll() {
   const status = document.getElementById("draft-status");
   status.textContent = state.draftName + (state.dirty ? " (unsaved)" : "");
   status.classList.toggle("dirty", state.dirty);
+  document.getElementById("draft-picker").value = state.draftKey || "";
 }
 
 // ============ flights tab ============
 const FLIGHT_META_KEY = "custody_flight_meta";
+const FLIGHT_FIELDS = ["status", "date", "from", "to", "traveler", "airline", "flightNumber", "confirmation", "cost", "depart", "arrive", "seat", "notes"];
+function normalizeFlightMeta(value) {
+  const result = Object.create(null);
+  if (!value || typeof value !== "object" || Array.isArray(value)) return result;
+  for (const [id, fields] of Object.entries(value)) {
+    if (!fields || typeof fields !== "object" || Array.isArray(fields)) continue;
+    const data = {};
+    for (const key of FLIGHT_FIELDS) {
+      if (typeof fields[key] === "string" && fields[key].trim()) data[key] = fields[key].trim();
+    }
+    if (data.status && !["proposed", "booked", "completed"].includes(data.status)) delete data.status;
+    if (data.date && !isFlightDate(data.date)) delete data.date;
+    if (Object.keys(data).length) result[id] = data;
+  }
+  return result;
+}
+function isFlightDate(value) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const parsed = new Date(value + "T12:00:00Z");
+  return !isNaN(parsed) && parsed.toISOString().slice(0,10) === value;
+}
+function cacheFlightMeta() {
+  try { localStorage.setItem(FLIGHT_META_KEY, JSON.stringify(flightMeta)); } catch { /* Draft export still works without browser storage. */ }
+}
+function applyDraftFlightMeta(payload) {
+  // Older calendars predate shared flight details; keep their browser metadata.
+  if (Object.prototype.hasOwnProperty.call(payload, "flightMeta")) {
+    flightMeta = normalizeFlightMeta(payload.flightMeta);
+    cacheFlightMeta();
+  }
+}
 let flightMeta = {};
-try { flightMeta = JSON.parse(localStorage.getItem(FLIGHT_META_KEY) || "{}"); } catch { flightMeta = {}; }
+try { flightMeta = normalizeFlightMeta(JSON.parse(localStorage.getItem(FLIGHT_META_KEY) || "{}")); } catch { flightMeta = {}; }
 let flightFilter = "all";
+
+function inferFlightDestination(dates, index) {
+  const explicit = travelDestination(state.assignments[dates[index]].note);
+  if (explicit) return explicit;
+  const region = loc => loc === "ut" ? "ut" : ["nc", "visit"].includes(loc) ? "nc" : null;
+  const adjacentRegion = step => {
+    for (let i = index + step; i >= 0 && i < dates.length; i += step) {
+      const previousDate = new Date(dates[i - step] + "T12:00:00Z");
+      previousDate.setUTCDate(previousDate.getUTCDate() + step);
+      if (previousDate.toISOString().slice(0,10) !== dates[i]) return null;
+      const loc = state.assignments[dates[i]].loc;
+      if (loc !== "travel") return region(loc);
+    }
+    return null;
+  };
+  const before = adjacentRegion(-1), after = adjacentRegion(1);
+  if (before && after) return before !== after ? after : null;
+  if (after) return after;
+  if (before) return before === "ut" ? "nc" : "ut";
+  return null;
+}
 
 function deriveFlights() {
   const flights = [];
   const dates = Object.keys(state.assignments).sort();
 
   // Boys' flights — every "travel" day in the schedule
-  for (const d of dates) {
+  for (const [index, d] of dates.entries()) {
     const v = state.assignments[d];
     if (v.loc === "travel") {
-      const dest = travelDestination(v.note); // "UT" or "NC"
+      const dest = inferFlightDestination(dates, index);
       flights.push({
         id: `boys-${d}`,
         date: d,
         who: "boys",
-        from: dest === "UT" ? "RDU" : "SLC",
-        to: dest === "UT" ? "SLC" : "RDU",
-        direction: dest === "UT" ? "NC → UT" : "UT → NC",
+        from: dest === "ut" ? "RDU" : dest === "nc" ? "SLC" : "",
+        to: dest === "ut" ? "SLC" : dest === "nc" ? "RDU" : "",
         context: v.note || "",
       });
     }
@@ -883,15 +1000,15 @@ function deriveFlights() {
     flights.push({
       id: `dave-out-${start}`,
       date: start, who: "dave",
-      from: "SLC", to: "RDU", direction: "UT → NC",
+      from: "SLC", to: "RDU",
       context: "Arrive in NC for visit",
     });
-    const next = new Date(end + "T00:00:00");
-    next.setDate(next.getDate() + 1);
+    const next = new Date(end + "T12:00:00Z");
+    next.setUTCDate(next.getUTCDate() + 1);
     flights.push({
       id: `dave-back-${next.toISOString().slice(0,10)}`,
       date: next.toISOString().slice(0,10), who: "dave",
-      from: "RDU", to: "SLC", direction: "NC → UT",
+      from: "RDU", to: "SLC",
       context: "Return home after visit",
     });
   }
@@ -907,6 +1024,15 @@ function deriveFlights() {
   }
   if (inVisit) emitDaveFlights(vStart, vEnd);
 
+  flights.forEach(f => {
+    const m = flightMeta[f.id] || {};
+    f.calendarDate = f.date;
+    if (isFlightDate(m.date || "")) f.date = m.date;
+    if (m.from) f.from = m.from;
+    if (m.to) f.to = m.to;
+    f.traveler = m.traveler || (f.who === "dave" ? "Dave" : "Boys");
+    f.direction = f.from || f.to ? `${f.from || "Unknown"} → ${f.to || "Unknown"}` : "Route not confirmed";
+  });
   flights.sort((a, b) => a.date.localeCompare(b.date) || a.who.localeCompare(b.who));
   return flights;
 }
@@ -942,7 +1068,7 @@ function renderFlights() {
     card("Dave flights", flights.filter(f=>f.who==="dave").length, "5 NC visits = 10 flights") +
     card("Booked", booked, `${flights.length - booked - completed} still proposed`) +
     card("Completed", completed, "") +
-    card("Recorded cost", totalCost ? `$${totalCost.toFixed(0)}` : "—", "sum of entered costs");
+    card("Recorded cost", totalCost ? `$${totalCost.toFixed(0)}` : "—", "sum of entered costs; enter each booking once");
 
   // filtered list
   const filtered = flights.filter(f => {
@@ -963,37 +1089,49 @@ function renderFlights() {
   });
 }
 
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, ch => ({"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"})[ch]);
+}
 function renderFlightRow(f) {
   const m = flightMeta[f.id] || {};
-  const status = m.status || "proposed";
+  const status = ["booked", "completed"].includes(m.status) ? m.status : "proposed";
   const d = fmtDate(f.date);
-  const whoLabel = f.who === "dave" ? "Dave" : "Boys";
-  const bookingInfo = [m.airline, m.flightNumber, m.confirmation].filter(Boolean).join(" · ");
-  const cost = m.cost ? `· ${m.cost}` : "";
+  const context = status === "booked" ? "Confirmed itinerary" : status === "completed" ? "Completed itinerary" : f.context;
+  const bookingInfo = [m.airline, m.flightNumber, m.confirmation && `Confirmation: ${m.confirmation}`, m.cost && `Cost: ${m.cost}`].filter(Boolean).join(" · ");
+  const timing = [m.depart && `Departs ${m.depart}`, m.arrive && `Arrives ${m.arrive}`, m.seat && `Seat: ${m.seat}`].filter(Boolean).join(" · ");
+  const calendarNote = f.date !== f.calendarDate ? `<div class="context">Calendar date: ${escapeHTML(fmtDate(f.calendarDate).long)}</div>` : "";
   return `
-    <div class="flight-row who-${f.who}" id="row-${f.id}">
+    <div class="flight-row who-${escapeHTML(f.who)}" id="row-${escapeHTML(f.id)}">
       <div class="date">${d.long}<span class="dow">${d.dow}</span></div>
-      <div class="who">${whoLabel}</div>
+      <div class="who">${escapeHTML(f.traveler)}</div>
       <div>
-        <div class="direction">${f.direction}</div>
-        <div class="context">${f.context}</div>
+        <div class="direction">${escapeHTML(f.direction)}</div>
+        <div class="context">${escapeHTML(context)}</div>
+        ${calendarNote}
+        ${timing ? `<div class="booking-info">${escapeHTML(timing)}</div>` : ""}
+        ${m.notes ? `<div class="context flight-notes">${escapeHTML(m.notes)}</div>` : ""}
       </div>
       <div>
         <span class="status ${status}">${status}</span>
-        ${bookingInfo ? `<div class="booking-info">${bookingInfo} ${cost}</div>` : ""}
+        ${bookingInfo ? `<div class="booking-info">${escapeHTML(bookingInfo)}</div>` : ""}
       </div>
-      <button class="btn edit-btn" data-flight-id="${f.id}">Edit</button>
+      <button class="btn edit-btn" data-flight-id="${escapeHTML(f.id)}">Edit</button>
     </div>`;
 }
 
 function toggleFlightEdit(flightId) {
+  draftActionVersion++;
   const row = document.getElementById(`row-${flightId}`);
   if (!row) return;
   const existing = row.querySelector(".flight-edit");
   if (existing) { existing.remove(); return; }
   const m = flightMeta[flightId] || {};
+  const flight = deriveFlights().find(f => f.id === flightId);
+  if (!flight) return;
   const editor = document.createElement("div");
   editor.className = "flight-edit";
+  const input = (field, label, placeholder = "", type = "text") =>
+    `<label>${label}<input type="${type}" data-field="${field}" value="${escapeHTML(m[field] || "")}" placeholder="${escapeHTML(placeholder)}" /></label>`;
   editor.innerHTML = `
     <label>Status
       <select data-field="status">
@@ -1002,39 +1140,47 @@ function toggleFlightEdit(flightId) {
         <option value="completed" ${m.status==="completed"?"selected":""}>Completed</option>
       </select>
     </label>
-    <label>Airline <input type="text" data-field="airline" value="${(m.airline||'').replace(/"/g,'&quot;')}" placeholder="Delta, United..." /></label>
-    <label>Flight # <input type="text" data-field="flightNumber" value="${(m.flightNumber||'').replace(/"/g,'&quot;')}" placeholder="DL 1234" /></label>
-    <label>Confirmation <input type="text" data-field="confirmation" value="${(m.confirmation||'').replace(/"/g,'&quot;')}" placeholder="ABC123" /></label>
-    <label>Cost <input type="text" data-field="cost" value="${(m.cost||'').replace(/"/g,'&quot;')}" placeholder="$450" /></label>
-    <label>Departure time <input type="text" data-field="depart" value="${(m.depart||'').replace(/"/g,'&quot;')}" placeholder="6:30 PM" /></label>
+    ${input("date", "Flight date override", flight.calendarDate, "date")}
+    ${input("from", "From airport", flight.from || "Airport code")}
+    ${input("to", "To airport", flight.to || "Airport code")}
+    ${input("traveler", "Traveler(s)", flight.who === "dave" ? "Dave" : "Boys")}
+    ${input("airline", "Airline", "Airline name")}
+    ${input("flightNumber", "Flight #", "Flight number")}
+    ${input("confirmation", "Confirmation", "Booking code")}
+    ${input("cost", "Cost — enter each booking once", "$450")}
+    ${input("depart", "Departure time", "6:30 PM MDT")}
+    ${input("arrive", "Arrival time", "11:00 PM EDT")}
+    ${input("seat", "Seat(s)", "Seat assignment")}
     <label style="grid-column:1/-1">Notes
-      <textarea data-field="notes" placeholder="Connections, seat prefs, special instructions...">${(m.notes||'')}</textarea>
+      <textarea data-field="notes" placeholder="Connections, booking cost scope, special instructions...">${escapeHTML(m.notes || "")}</textarea>
     </label>
     <div class="save-row">
       <button class="btn danger" data-action="clear">Clear</button>
-      <button class="btn primary" data-action="save">Save</button>
+      <button class="btn primary" data-action="save">Apply flight details</button>
     </div>`;
   row.appendChild(editor);
 
   editor.querySelector(`[data-action="save"]`).onclick = () => {
-    const fields = ["status","airline","flightNumber","confirmation","cost","depart","notes"];
     const data = {};
-    fields.forEach(f => {
+    FLIGHT_FIELDS.forEach(f => {
       const el = editor.querySelector(`[data-field="${f}"]`);
       if (el && el.value.trim()) data[f] = el.value.trim();
     });
-    if (Object.keys(data).length === 0) delete flightMeta[flightId];
-    else flightMeta[flightId] = data;
-    localStorage.setItem(FLIGHT_META_KEY, JSON.stringify(flightMeta));
-    renderFlights();
-    showToast("Flight updated");
+    updateFlightMeta(flightId, data);
   };
   editor.querySelector(`[data-action="clear"]`).onclick = () => {
-    delete flightMeta[flightId];
-    localStorage.setItem(FLIGHT_META_KEY, JSON.stringify(flightMeta));
-    renderFlights();
-    showToast("Flight cleared");
+    updateFlightMeta(flightId, null);
   };
+}
+function updateFlightMeta(flightId, data) {
+  draftActionVersion++;
+  const normalized = normalizeFlightMeta({[flightId]:data});
+  if (normalized[flightId]) flightMeta[flightId] = normalized[flightId];
+  else delete flightMeta[flightId];
+  cacheFlightMeta();
+  state.dirty = true;
+  refreshAll();
+  showToast("Flight details updated — use Save Draft to share");
 }
 
 // ============ wire up ============
@@ -1049,7 +1195,10 @@ document.querySelector(`.tool[data-tool="nc"]`).classList.add("active");
 document.getElementById("save-btn").onclick = saveDraft;
 document.getElementById("rename-btn").onclick = renameDraft;
 document.getElementById("export-btn").onclick = exportJSON;
-document.getElementById("import-btn").onclick = () => document.getElementById("import-file").click();
+document.getElementById("import-btn").onclick = () => {
+  draftActionVersion++;
+  document.getElementById("import-file").click();
+};
 document.getElementById("import-file").onchange = e => { if (e.target.files[0]) importJSON(e.target.files[0]); };
 document.getElementById("reset-btn").onclick = resetToBaseline;
 document.getElementById("draft-picker").onchange = e => loadDraft(e.target.value);
@@ -1078,7 +1227,7 @@ window.addEventListener("beforeunload", e => {
 });
 
 refreshAll();
-refreshDraftPicker();
+refreshDraftPicker({loadLatest:true});
 
 // ============ password gate ============
 // Note: client-side password is lightweight gating, not real security — the

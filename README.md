@@ -5,8 +5,8 @@ Interactive proposal tool for the boys' custody calendar across the 2026-27 Wake
 ## What it does
 
 - **Calendar tab** — visual day-by-day plan for the 365-day window from Aug 23, 2026 → Aug 22, 2027. Color-coded: NC (Mom, green), UT (Dad, blue), Dad-visiting-NC (striped purple/green), travel (orange).
-- **Flights tab** — auto-derived list of every flight (Boys + Dave). Edit each row to record airline, flight number, confirmation, cost, and status (proposed / booked / completed). Persists in browser localStorage.
-- **Drafts** — paint days to revise the proposal, save named drafts, export/import JSON, share with the other parent.
+- **Flights tab** — derives flight rows from the calendar (Boys + Dave). Record airline, flight number, confirmation, departure/arrival times with time zones, seats, cost, notes, and status. Override the flight date, airports, and traveler label without changing calendar assignments. Enter shared round-trip costs only once. Use **Save Draft** after editing to share flight details with the calendar; JSON exports/imports include them too. Older drafts without flight details retain the current browser's metadata.
+- **Drafts** — opens the most recently saved calendar by `savedAt` across cloud and browser drafts. Falls back to a valid local save or the baseline when cloud drafts are unavailable. Paint days to revise the proposal, save named drafts, export/import JSON, and share with the other parent.
 
 ## Project layout
 
@@ -37,7 +37,7 @@ The app works without a server too — open `public/index.html` directly in a br
 
 ## Running on Replit
 
-Import this repo into Replit. The `.replit` config runs `npm install && npm start`. The starting-bid JSON in `data/` gets seeded into Replit DB on first boot so anyone visiting the URL sees it in the Load draft dropdown.
+Import this repo into Replit. The `.replit` config runs `npm install && npm start`. The starting-bid JSON in `data/` gets seeded into Replit DB on first boot. Visitors automatically see the newest available saved calendar; older drafts remain available in the Load draft dropdown. A slow cloud response will not replace edits or a calendar the visitor has already selected, imported, or reset.
 
 ## Updating the proposal
 
@@ -46,5 +46,5 @@ The baseline schedule is defined inline in `public/index.html` in the `buildBase
 ## Sharing a draft with the other parent
 
 Two paths:
-1. **Cloud (Replit)**: in the app, Save Draft → the other parent opens the Replit URL → picks the draft from the dropdown.
+1. **Cloud (Replit)**: in the app, Save Draft → the other parent opens the Replit URL → the newest save opens automatically (or they can select an older draft from the dropdown).
 2. **File (email)**: in the app, Save Draft → Export JSON → attach to email. Other parent opens the URL → Import JSON.
